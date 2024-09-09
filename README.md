@@ -2,4 +2,4 @@
 
 # Схема сервиса
 
-![Image alt](https://github.com/Fox13th/ugc_service/blob/main/diagrams/Scheme.png)
+![Image alt](https://github.com/a1d4r/practicum-recommender-system/blob/main/diagrams/Scheme.png)
