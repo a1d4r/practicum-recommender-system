@@ -1,0 +1,65 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    env_file:
+      - infra/postgres/.env.docker
+    volumes:
+      - postgres-data:/data/postgres
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U app -d movies_database" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  elasticsearch:
+    image: elasticsearch:8.12.2
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: curl -u elastic:elastic -s -f elasticsearch:9200/_cat/health >/dev/null || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '1.00'
+          memory: 1GB
+        reservations:
+          cpus: '0.50'
+          memory: 1GB
+
+  init-elasticsearch:
+    image: elasticdump/elasticsearch-dump
+    command: bash -c "
+      elasticdump --input=/dump/movies_settings.json --output http://elasticsearch:9200/movies --type settings &&
+      elasticdump --input=/dump/movies_mapping.json --output http://elasticsearch:9200/movies --type mapping &&
+      elasticdump --input=/dump/movies.json --output http://elasticsearch:9200/movies --type data
+      "
+    volumes:
+      - ./infra/elasticsearch/dump:/dump
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+
+  similar-movies-recommender:
+    build:
+      context: similar-movies-recommender
+      target: production
+    env_file:
+      - similar-movies-recommender/.env.docker
+    volumes:
+      - similar-movies-recommender-data:/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+
+volumes:
+  postgres-data:
+  elasticsearch-data:
+  similar-movies-recommender-data:
