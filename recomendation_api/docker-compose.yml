@@ -1,0 +1,78 @@
+# docker-compose.yml
+
+version: "3.9"
+
+services:
+  redis:
+    image: "redis:latest"
+    networks:
+      - recomm-service
+
+
+  postgres:
+    image: postgres:13
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+    env_file:
+      - ./.env
+    environment:
+      - POSTGRES_DB=${PS_DB}
+      - POSTGRES_USER=${PS_USER}
+      - POSTGRES_PASSWORD=${PS_PASSWORD}
+    healthcheck:
+      test: [ "CMD-SHELL", "sh -c 'pg_isready -U ${PS_USER} -d ${PS_DB}'" ]
+      interval: 5s
+      timeout: 10s
+      retries: 120
+    networks:
+      - recomm-service
+
+
+  recommendation_api:
+    build:
+      target: recomm_serv
+    command: "gunicorn -w 2 -k uvicorn.workers.UvicornWorker main:app --bind 0.0.0.0:${FAST_API_INTERNAL_PORT}"
+    expose:
+      - "${FAST_API_INTERNAL_PORT}"
+    restart: on-failure
+    volumes:
+      - ./.env:/app/src/.env
+      - ./logs/nginx/json-logs.json:/app/src/recommend_service.json
+    env_file:
+      - .env
+    environment:
+      OTEL_RESOURCE_ATTRIBUTES: "service.name=${SERVICE_NAME}"
+    depends_on:
+      - redis
+      - postgres
+    networks:
+      - recomm-service
+
+
+  nginx:
+    image: nginx:1.25.3
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./logs/nginx/:/var/log/nginx/
+      - ./configs:/etc/nginx/conf.d:ro
+    depends_on:
+      - recommendation_api
+    ports:
+      - ${NGINX_INTERNAL_PORT}:${NGINX_EXTERNAL_PORT}
+    networks:
+      - recomm-service
+
+
+  filebeat:
+    image: elastic/filebeat:8.10.2
+    command: filebeat -e -strict.perms=false
+    volumes:
+      - ./logs/nginx:/var/log/nginx:ro
+      - ./deploy/filebeat.yml:/usr/share/filebeat/filebeat.yml
+    networks:
+      - recomm-service
+
+
+networks:
+  recomm-service:
+    driver: "bridge"

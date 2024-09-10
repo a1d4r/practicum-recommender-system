@@ -1,5 +1,5 @@
 import uvicorn
-from async_fastapi_jwt_auth.exceptions import AuthJWTException
+# from async_fastapi_jwt_auth.exceptions import AuthJWTException
 # import sentry_sdk
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import ORJSONResponse

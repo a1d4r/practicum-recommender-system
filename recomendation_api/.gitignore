@@ -1,4 +1,4 @@
-/src/.env
+/.env
 /es_data
 /tasks
 
@@ -101,7 +101,7 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-src/.env
+.env
 .venv
 env/
 venv/

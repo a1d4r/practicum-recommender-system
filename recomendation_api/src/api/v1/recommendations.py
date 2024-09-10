@@ -20,7 +20,7 @@ router = APIRouter()
     status_code=status.HTTP_200_OK
 )
 async def user_recommend(
-        # user: Annotated[dict, Depends(security_jwt(required_roles=[]))],
+        user: Annotated[dict, Depends(security_jwt(required_roles=[]))],
         user_id: uuid.UUID,
         recommendation_service: RecommendationService = Depends(get_recommendation_service),
         ) -> Sequence[UserRecommendation]:
@@ -33,7 +33,7 @@ async def user_recommend(
     status_code=status.HTTP_200_OK
 )
 async def similar_movies(
-        # user: Annotated[dict, Depends(security_jwt(required_roles=[]))],
+        user: Annotated[dict, Depends(security_jwt(required_roles=[]))],
         movie_id: uuid.UUID,
         recommendation_service: RecommendationService = Depends(get_recommendation_service),
         ) -> Sequence[SimilarMoviesInDB]:

@@ -4,14 +4,14 @@ import pandas as pd
 from sqlalchemy import delete
 from async_fastapi_jwt_auth import AuthJWT
 
-from src.core import config
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, AsyncEngine
 
+from tests.functional.settings import get_settings
 from tests.functional.models.auth import User
 from tests.functional.models.entity import Base, UserRecommendation, SimilarMovies
 
-settings = config.get_settings()
+settings = get_settings()
 
 dsn = f'postgresql+asyncpg://{settings.ps_user}:{settings.ps_password}@{settings.ps_host}:{settings.ps_port}/{settings.ps_db}'
 
@@ -35,7 +35,7 @@ async def insert_in_db(table_name: str):
     async with async_session() as session:
         match table_name:
             case 'user-recomm':
-                df = pd.read_csv('.\\tests\\functional\\testdata\\user_recomm.csv')
+                df = pd.read_csv('/app/tests/functional/testdata/user_recomm.csv')
                 for index, row in df.iterrows():
                     record = UserRecommendation(
                         user_id=row['user_id'],
@@ -45,7 +45,7 @@ async def insert_in_db(table_name: str):
                     session.add(record)
 
             case 'similar-movies':
-                df = pd.read_csv('.\\tests\\functional\\testdata\\similar_movies.csv')
+                df = pd.read_csv('/app/tests/functional/testdata/similar_movies.csv')
                 for index, row in df.iterrows():
                     record = SimilarMovies(
                         movie_id=row['movie_id'],
