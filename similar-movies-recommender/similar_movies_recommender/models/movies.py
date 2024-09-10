@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 GenreID = NewType("GenreID", UUID)
 PersonID = NewType("PersonID", UUID)
-FilmID = NewType("FilmID", UUID)
+MovieID = NewType("MovieID", UUID)
 
 
 class PersonIdName(BaseModel):
@@ -23,10 +23,10 @@ class GenreIdName(BaseModel):
     name: str
 
 
-class Film(BaseModel):
+class Movie(BaseModel):
     """Модель для хранения информации о фильме."""
 
-    id: FilmID
+    id: MovieID
     title: str
     imdb_rating: float | None
     description: str | None

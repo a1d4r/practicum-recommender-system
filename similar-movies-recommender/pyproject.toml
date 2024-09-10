@@ -11,6 +11,9 @@ python = "^3.12"
 pydantic = "^2.6.4"
 pydantic-settings = "^2.4.0"
 elasticsearch = "^8.15.0"
+loguru = "^0.7.2"
+psycopg = {extras = ["binary"], version = "^3.2.1"}
+tenacity = "^9.0.0"
 
 [tool.poetry.group.dev.dependencies]  # https://python-poetry.org/docs/master/managing-dependencies/
 mypy = "^1.11.2"

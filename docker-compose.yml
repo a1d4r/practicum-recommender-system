@@ -1,4 +1,16 @@
 services:
+  postgres:
+    image: postgres:16-alpine
+    env_file:
+      - infra/postgres/.env.docker
+    volumes:
+      - postgres-data:/data/postgres
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U app -d movies_database" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   elasticsearch:
     image: elasticsearch:8.12.2
     environment:
