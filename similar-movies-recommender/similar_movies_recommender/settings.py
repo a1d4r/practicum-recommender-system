@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     # General
     state_file_path: Path = PROJECT_ROOT / "state.json"
     log_level: str = "INFO"
+    run_interval_seconds: int = 60
 
     # Database
     postgres_dsn: PostgresDsn

@@ -9,3 +9,16 @@
 2. Ссылка на API CRUD закладок, лайков и рецензий: **https://github.com/EsterTar/ReviewHub**
 3. Сервис выдачи контента: **https://github.com/Fox13th/Sprint_async_api**
 4. Сервис UGC: **https://github.com/Fox13th/ugc_service**
+
+
+## Запуск
+
+```bash
+docker compose up -d
+```
+
+### Для локальной разработки
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.override.yml up -d --build
+```

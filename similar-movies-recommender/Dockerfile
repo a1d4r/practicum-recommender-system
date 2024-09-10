@@ -4,7 +4,7 @@
 # PYTHON-BASE
 # Sets up all our shared environment variables
 ################################
-FROM python:3.12-slim as python-base
+FROM python:3.12-slim AS python-base
 
     # python
 ENV PYTHONUNBUFFERED=1 \
@@ -81,7 +81,7 @@ RUN --mount=type=cache,target=/root/.cache \
 # will become mountpoint of our code
 WORKDIR /app
 
-CMD ["python", "-m", "similar_movies_recommender.example"]
+CMD ["python", "-m", "similar_movies_recommender.main"]
 
 
 ################################
@@ -92,4 +92,4 @@ FROM python-base AS production
 COPY --from=builder-base $PYSETUP_PATH $PYSETUP_PATH
 COPY ./similar_movies_recommender /app/similar_movies_recommender
 WORKDIR /app
-CMD ["python", "-m", "similar_movies_recommender.example"]
+CMD ["python", "-m", "similar_movies_recommender.main"]

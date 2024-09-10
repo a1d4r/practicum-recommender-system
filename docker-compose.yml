@@ -45,6 +45,21 @@ services:
       elasticsearch:
         condition: service_healthy
 
+  similar-movies-recommender:
+    build:
+      context: similar-movies-recommender
+      target: production
+    env_file:
+      - similar-movies-recommender/.env.docker
+    volumes:
+      - similar-movies-recommender-data:/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+
 volumes:
   postgres-data:
   elasticsearch-data:
+  similar-movies-recommender-data:
