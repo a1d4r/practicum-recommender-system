@@ -1,9 +1,9 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Column, DateTime, String, ForeignKey, Table, Text, UniqueConstraint, or_
+from sqlalchemy import Column, DateTime, String, ForeignKey, Table, or_
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import relationship, declarative_base, backref
+from sqlalchemy.orm import relationship, declarative_base
 from werkzeug.security import check_password_hash, generate_password_hash
 
 

@@ -3,8 +3,6 @@ import asyncio
 import aiohttp
 import pytest_asyncio
 
-# from redis.asyncio.client import Redis
-
 from tests.functional.settings import get_settings
 
 
@@ -13,13 +11,6 @@ def event_loop():
     loop = asyncio.get_event_loop()
     yield loop
     loop.close()
-
-
-# @pytest_asyncio.fixture(name='redis_cl', scope='session')
-# async def redis_cl():
-#    redis_conn = Redis(host=test_settings.redis_host, socket_connect_timeout=1, port=6379)
-#    yield redis_conn
-#    await redis_conn.close()
 
 
 @pytest_asyncio.fixture(name='cl_session', scope='session')

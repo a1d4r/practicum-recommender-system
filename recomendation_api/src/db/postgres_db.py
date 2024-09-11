@@ -6,7 +6,8 @@ from models.entity import Base
 
 settings = config.get_settings()
 
-dsn = f'postgresql+asyncpg://{settings.ps_user}:{settings.ps_password}@{settings.ps_host}:{settings.ps_port}/{settings.ps_db}'
+dsn = (f'postgresql+asyncpg://{settings.ps_user}:{settings.ps_password}@{settings.ps_host}:{settings.ps_port}/'
+       f'{settings.ps_db}')
 
 engine: AsyncEngine = create_async_engine(dsn, echo=False, future=True)
 
@@ -16,7 +17,6 @@ if settings.debug:
     async def init_models():
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
-
 
     async def purge_pg_database() -> None:
         async with engine.begin() as conn:
