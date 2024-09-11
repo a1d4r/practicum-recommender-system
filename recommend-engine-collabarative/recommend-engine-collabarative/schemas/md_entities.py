@@ -14,7 +14,7 @@ class Like(Document):
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     class Settings:
-        collection = "likes"
+        name = "like"
         indexes = [
             IndexModel([("user_id", ASCENDING), ("movie_id", ASCENDING)], name="user_movie_idx", unique=True)
         ]

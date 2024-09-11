@@ -1,6 +1,5 @@
+import asyncio
 from abc import ABC, abstractmethod
-import pickle
-from datetime import datetime
 
 import pandas as pd
 from dotenv import load_dotenv
@@ -21,24 +20,25 @@ class RecommendService(ABC):
         self.ratings_df = None
 
     @abstractmethod
-    def train_model(self) -> list:
+    async def load_data(self) -> None:
         pass
 
     @abstractmethod
-    def get_user_recommendations(self, user_id: int, n_recommendations: int = 5) -> list:
+    async def train_model(self) -> list:
         pass
 
-    def get_all_recommendations(self):
+    @abstractmethod
+    async def get_user_recommendations(self, user_id: int, n_recommendations: int = 5) -> list:
+        pass
+
+    async def get_all_recommendations(self) -> list[list]:
         pass
 
 
 class CollaborativeFilter(RecommendService):
-
     async def load_data(self) -> None:
         """Загрузка данных из MongoDB."""
-
         likes_data: list[Like] = await Like.find_all().to_list()
-
         likes_df = pd.DataFrame([{
             'user_id': str(like.user_id),
             'movie_id': str(like.movie_id),
@@ -56,7 +56,14 @@ class CollaborativeFilter(RecommendService):
         self.ratings_df = pd.concat([likes_df, history_df]).drop_duplicates(
             subset=['user_id', 'movie_id'], keep='first')
 
-    def train_model(self) -> list:
+    async def train_model(self) -> list:
+        if self.ratings_df is None or self.ratings_df.empty:
+            raise ValueError("DataFrame is empty or not loaded")
+
+        required_columns = {'user_id', 'movie_id', 'rating'}
+        if not required_columns.issubset(self.ratings_df.columns):
+            raise KeyError(f"DataFrame does not contain necessary columns: {required_columns}")
+
         reader = Reader(rating_scale=(1, 10))
         input_data = Dataset.load_from_df(self.ratings_df[['user_id', 'movie_id', 'rating']], reader)
         trainset, testset = train_test_split(input_data, test_size=0.25)
@@ -65,18 +72,9 @@ class CollaborativeFilter(RecommendService):
 
         predictions = self.model.test(testset)
         accuracy.rmse(predictions)
-
-        with open(f'svd_model-{datetime.now().strftime("%y-%m-%d_%H-%M-%S")}.pkl', 'wb') as f:
-            pickle.dump(self.model, f)
-
         return predictions
 
-    def load_model(self, date_file: str) -> bool:
-        with open(date_file, 'rb') as f:
-            self.model = pickle.load(f)
-        return True
-
-    def get_user_recommendations(self, user_id: str, n_recommendations: int = 5) -> list:
+    async def get_user_recommendations(self, user_id: str, n_recommendations: int = 5) -> list:
         all_movie_ids = self.ratings_df['movie_id'].unique()
         rated_movies = self.ratings_df[self.ratings_df['user_id'] == user_id]['movie_id'].values
         movies_to_predict = [movie for movie in all_movie_ids if movie not in rated_movies]
@@ -85,12 +83,10 @@ class CollaborativeFilter(RecommendService):
         predictions.sort(key=lambda x: x.est, reverse=True)
 
         top_n_recommendations = predictions[:n_recommendations]
-        return [(pred.iid, pred.est) for pred in top_n_recommendations]
+        return [(user_id, pred.iid, pred.est) for pred in top_n_recommendations]
 
-    def get_all_recommendations(self) -> list[list]:
-        result = []
+    async def get_all_recommendations(self) -> list[list]:
         all_users = self.ratings_df['user_id'].unique()
-        for user in all_users:
-            user_recommend = self.get_user_recommendations(user, n_recommendations=10)
-            result.append(user_recommend)
-        return result
+        tasks = [self.get_user_recommendations(user, n_recommendations=10) for user in all_users]
+        result = await asyncio.gather(*tasks)
+        return list(result)

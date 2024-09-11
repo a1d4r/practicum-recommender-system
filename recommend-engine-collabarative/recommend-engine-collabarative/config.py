@@ -17,11 +17,7 @@ class Settings(BaseSettings):
     logger: CustomizeLogger | None = None
 
     mongodb_uri: str
-    md_db_host: str
-    md_db_port: int
     md_db_name: str
-    md_db_user: str
-    md_db_pass: str
 
     pg_db_host: str
     pg_db_port: int
