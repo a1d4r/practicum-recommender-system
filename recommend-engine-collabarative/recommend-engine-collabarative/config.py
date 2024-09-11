@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     pg_db_pass: str
 
     class Config:
-        env_file = ".env"
+        env_file = "../.env"
         extra = "ignore"
 
     def setup(self):

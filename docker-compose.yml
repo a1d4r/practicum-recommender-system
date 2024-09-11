@@ -59,6 +59,8 @@ services:
       elasticsearch:
         condition: service_healthy
 
+
+
 volumes:
   postgres-data:
   elasticsearch-data:
