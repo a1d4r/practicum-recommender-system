@@ -63,6 +63,7 @@ class RedisCacheService(CacheService):
         data_list = orjson.loads(data)
 
         match table:
+
             case 'user-recomm':
                 for item in data_list:
                     recommendation = UserRecommendation(
@@ -73,6 +74,7 @@ class RedisCacheService(CacheService):
                         created_at=item['created_at']
                     )
                     recomm_list.append(recommendation)
+
             case 'similar-movies':
                 for item in data_list:
                     recommendation = SimilarMovies(
