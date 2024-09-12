@@ -10,6 +10,7 @@ from starlette.middleware.trustedhost import TrustedHostMiddleware
 from core import config
 
 from api.v1 import recommendations
+from services.auth import security_jwt
 from middleware import LoggingMiddleware, BeforeRequest
 
 settings = config.get_settings()
@@ -20,7 +21,6 @@ async def lifespan(app: FastAPI):
     """@app.on_event("startup") and @app.on_event("shutdown") was deprecated.\n
     Recommended to use "lifespan"."""
     # start_up
-    # pass
     # await init_models()
     yield
     # await purge_pg_database()
@@ -33,7 +33,8 @@ app = FastAPI(
     docs_url='/api/openapi',
     openapi_url='/api/openapi.json',
     default_response_class=ORJSONResponse,
-    lifespan=lifespan
+    lifespan=lifespan,
+    dependencies=[Depends(security_jwt(required_roles=[]))]
 )
 
 
