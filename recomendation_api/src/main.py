@@ -1,6 +1,6 @@
 import uvicorn
 import sentry_sdk
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.responses import ORJSONResponse
 from contextlib import asynccontextmanager
 
